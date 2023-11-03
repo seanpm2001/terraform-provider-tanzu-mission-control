@@ -78,7 +78,7 @@ func TestAcceptanceInspectionsDataSources(t *testing.T) {
 	},
 	)
 
-	t.Log("inspections data sources acceptance test complete!")
+	t.Log("Inspections data sources acceptance test complete!")
 }
 
 func verifyInspectionListDataSource(provider *schema.Provider, dataSourceName string) resource.TestCheckFunc {
