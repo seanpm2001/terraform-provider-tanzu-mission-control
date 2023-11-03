@@ -22,6 +22,7 @@ import (
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/helmrelease"
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/helmrepository"
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/iampolicy"
+	inspections "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/inspections"
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/kubernetessecret"
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/kustomization"
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/namespace"
@@ -76,25 +77,27 @@ func Provider() *schema.Provider {
 			helmfeature.ResourceName:         helmfeature.ResourceHelm(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			cluster.ResourceName:             cluster.DataSourceTMCCluster(),
-			ekscluster.ResourceName:          ekscluster.DataSourceTMCEKSCluster(),
-			akscluster.ResourceName:          akscluster.DataSourceTMCAKSCluster(),
-			workspace.ResourceName:           workspace.DataSourceWorkspace(),
-			namespace.ResourceName:           namespace.DataSourceNamespace(),
-			clustergroup.ResourceName:        clustergroup.DataSourceClusterGroup(),
-			nodepools.ResourceName:           nodepools.DataSourceClusterNodePool(),
-			credential.ResourceName:          credential.DataSourceCredential(),
-			integration.ResourceName:         integration.DataSourceIntegration(),
-			gitrepository.ResourceName:       gitrepository.DataSourceGitRepository(),
-			sourcesecret.ResourceName:        sourcesecret.DataSourceSourcesecret(),
-			packagerepository.ResourceName:   packagerepository.DataSourcePackageRepository(),
-			tanzupackage.ResourceName:        tanzupackage.DataSourceTanzuPackage(),
-			tanzupackages.ResourceName:       tanzupackages.DataSourceTanzuPackages(),
-			tanzupackageinstall.ResourceName: tanzupackageinstall.DataSourcePackageInstall(),
-			kubernetessecret.ResourceName:    kubernetessecret.DataSourceSecret(),
-			helmfeature.ResourceName:         helmfeature.DataSourceHelm(),
-			helmcharts.ResourceName:          helmcharts.DataSourceHelmCharts(),
-			helmrepository.ResourceName:      helmrepository.DataSourceHelmRepository(),
+			cluster.ResourceName:                      cluster.DataSourceTMCCluster(),
+			ekscluster.ResourceName:                   ekscluster.DataSourceTMCEKSCluster(),
+			akscluster.ResourceName:                   akscluster.DataSourceTMCAKSCluster(),
+			workspace.ResourceName:                    workspace.DataSourceWorkspace(),
+			namespace.ResourceName:                    namespace.DataSourceNamespace(),
+			clustergroup.ResourceName:                 clustergroup.DataSourceClusterGroup(),
+			nodepools.ResourceName:                    nodepools.DataSourceClusterNodePool(),
+			credential.ResourceName:                   credential.DataSourceCredential(),
+			integration.ResourceName:                  integration.DataSourceIntegration(),
+			gitrepository.ResourceName:                gitrepository.DataSourceGitRepository(),
+			sourcesecret.ResourceName:                 sourcesecret.DataSourceSourcesecret(),
+			packagerepository.ResourceName:            packagerepository.DataSourcePackageRepository(),
+			tanzupackage.ResourceName:                 tanzupackage.DataSourceTanzuPackage(),
+			tanzupackages.ResourceName:                tanzupackages.DataSourceTanzuPackages(),
+			tanzupackageinstall.ResourceName:          tanzupackageinstall.DataSourcePackageInstall(),
+			kubernetessecret.ResourceName:             kubernetessecret.DataSourceSecret(),
+			helmfeature.ResourceName:                  helmfeature.DataSourceHelm(),
+			helmcharts.ResourceName:                   helmcharts.DataSourceHelmCharts(),
+			helmrepository.ResourceName:               helmrepository.DataSourceHelmRepository(),
+			inspections.ResourceNameInspections:       inspections.DataSourceInspections(),
+			inspections.ResourceNameInspectionResults: inspections.DataSourceInspectionResults(),
 		},
 		ConfigureContextFunc: authctx.ProviderConfigureContext,
 	}
