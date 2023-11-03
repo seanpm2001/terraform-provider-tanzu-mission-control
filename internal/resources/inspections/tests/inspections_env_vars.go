@@ -32,7 +32,7 @@ func ReadClusterEnvironmentVariables() (envVars map[ClusterClassEnvVar]string, e
 	envVars = make(map[ClusterClassEnvVar]string)
 	errs = make([]error, 0)
 
-	for k, _ := range ClusterEnvironmentVariables {
+	for k := range ClusterEnvironmentVariables {
 		envVarVal, exists := os.LookupEnv(string(k))
 
 		if exists {

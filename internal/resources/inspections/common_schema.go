@@ -17,7 +17,7 @@ const (
 	NameKey                  = "name"
 	StatusKey                = "status"
 
-	// Inspection Object Status Keys
+	// Inspection Object Status Keys.
 	PhaseKey     = "phase"
 	PhaseInfoKey = "phase_info"
 	ReportKey    = "report"

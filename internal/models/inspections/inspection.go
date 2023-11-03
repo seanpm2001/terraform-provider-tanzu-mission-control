@@ -7,6 +7,7 @@ package inspectionsmodels
 
 import (
 	"github.com/go-openapi/swag"
+
 	objectmetamodel "github.com/vmware/terraform-provider-tanzu-mission-control/internal/models/objectmeta"
 )
 
