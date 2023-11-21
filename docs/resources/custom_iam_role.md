@@ -37,7 +37,7 @@ resource "tanzu-mission-control_custom_iam_role" "demo-role" {
       }
     }
 
-    resources = [
+    allowed_scopes = [
       "ORGANIZATION",
       "CLUSTER_GROUP",
       "CLUSTER"
@@ -45,16 +45,18 @@ resource "tanzu-mission-control_custom_iam_role" "demo-role" {
 
     tanzu_permissions = []
 
-    rule {
-      resources  = ["deployments"]
-      verbs      = ["get", "list"]
-      api_groups = ["*"]
-    }
+    kubernetes_permissions {
+      rule {
+        resources  = ["deployments"]
+        verbs      = ["get", "list"]
+        api_groups = ["*"]
+      }
 
-    rule {
-      verbs      = ["get", "list"]
-      api_groups = ["*"]
-      url_paths  = ["/healthz"]
+      rule {
+        verbs      = ["get", "list"]
+        api_groups = ["*"]
+        url_paths  = ["/healthz"]
+      }
     }
   }
 }
@@ -81,30 +83,15 @@ resource "tanzu-mission-control_custom_iam_role" "demo-role" {
 
 Required:
 
-- `resources` (List of String) The resources for the iam role.
+- `allowed_scopes` (List of String) The allowed scopes for the iam role.
 Valid values are (ORGANIZATION, MANAGEMENT_CLUSTER, PROVISIONER, CLUSTER_GROUP, CLUSTER, WORKSPACE, NAMESPACE)
-- `rule` (Block List, Min: 1) Kubernetes rules. (see [below for nested schema](#nestedblock--spec--rule))
 
 Optional:
 
 - `aggregation_rule` (Block List, Max: 1) Aggregation rules for the iam role. (see [below for nested schema](#nestedblock--spec--aggregation_rule))
 - `is_deprecated` (Boolean) Flag representing whether role is deprecated.
+- `kubernetes_permissions` (Block List, Max: 1) Kubernetes permissions for the iam role. (see [below for nested schema](#nestedblock--spec--kubernetes_permissions))
 - `tanzu_permissions` (List of String) Tanzu-specific permissions for the role.
-
-<a id="nestedblock--spec--rule"></a>
-### Nested Schema for `spec.rule`
-
-Required:
-
-- `verbs` (List of String) Verbs.
-
-Optional:
-
-- `api_groups` (List of String) API groups.
-- `resource_names` (List of String) Restricts the rule to resources by name.
-- `resources` (List of String) Resources for the role.
-- `url_paths` (List of String) Non-resource urls for the role.
-
 
 <a id="nestedblock--spec--aggregation_rule"></a>
 ### Nested Schema for `spec.aggregation_rule`
@@ -140,6 +127,29 @@ If the operator is "In" or "NotIn", the values array must be non-empty.
 If the operator is "Exists" or "DoesNotExist", the values array must be empty.
 This array is replaced during a strategic merge patch.
 
+
+
+
+<a id="nestedblock--spec--kubernetes_permissions"></a>
+### Nested Schema for `spec.kubernetes_permissions`
+
+Required:
+
+- `rule` (Block List, Min: 1) Kubernetes rules. (see [below for nested schema](#nestedblock--spec--kubernetes_permissions--rule))
+
+<a id="nestedblock--spec--kubernetes_permissions--rule"></a>
+### Nested Schema for `spec.kubernetes_permissions.rule`
+
+Required:
+
+- `verbs` (List of String) Verbs.
+
+Optional:
+
+- `api_groups` (List of String) API groups.
+- `resource_names` (List of String) Restricts the rule to resources by name.
+- `resources` (List of String) Resources for the role.
+- `url_paths` (List of String) Non-resource urls for the role.
 
 
 
