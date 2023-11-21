@@ -29,6 +29,7 @@ import (
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/namespace"
 	tanzupackage "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/package"
 	tanzupackages "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/packages"
+	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/permissiontemplate"
 	custompolicy "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/policy/kind/custom"
 	custompolicyresource "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/policy/kind/custom/resource"
 	imagepolicy "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/policy/kind/image"
@@ -103,6 +104,7 @@ func Provider() *schema.Provider {
 			helmrepository.ResourceName:      helmrepository.DataSourceHelmRepository(),
 			backupschedule.ResourceName:      backupschedule.DataSourceBackupSchedule(),
 			targetlocation.ResourceName:      targetlocation.DataSourceTargetLocations(),
+			permissiontemplate.ResourceName:  permissiontemplate.DataSourcePermissionTemplate(),
 		},
 		ConfigureContextFunc: authctx.ProviderConfigureContext,
 	}
