@@ -179,24 +179,28 @@ func resourceCustomIAMRoleImporter(_ context.Context, data *schema.ResourceData,
 
 func validateSchema(ctx context.Context, data *schema.ResourceDiff, m interface{}) (err error) {
 	specData := data.Get(SpecKey).([]interface{})[0].(map[string]interface{})
-	ruleData := specData[KubernetesPermissionsKey].([]interface{})[0].(map[string]interface{})[RuleKey].([]interface{})
-	errMsg := ""
+	kubernetesPermissions := specData[KubernetesPermissionsKey].([]interface{})
 
-	for i, r := range ruleData {
-		resourcesLen := len(r.(map[string]interface{})[ResourcesKey].([]interface{}))
-		urlPathsLen := len(r.(map[string]interface{})[URLPathsKey].([]interface{}))
+	if len(kubernetesPermissions) > 0 {
+		rulesData := kubernetesPermissions[0].(map[string]interface{})[RuleKey].([]interface{})
+		errMsg := ""
 
-		if (resourcesLen > 0 && urlPathsLen > 0) || (resourcesLen == 0 && urlPathsLen == 0) {
-			if errMsg == "" {
-				errMsg = "Custom IAM Role Rules Validation Failed:"
+		for i, r := range rulesData {
+			resourcesLen := len(r.(map[string]interface{})[ResourcesKey].([]interface{}))
+			urlPathsLen := len(r.(map[string]interface{})[URLPathsKey].([]interface{}))
+
+			if (resourcesLen > 0 && urlPathsLen > 0) || (resourcesLen == 0 && urlPathsLen == 0) {
+				if errMsg == "" {
+					errMsg = "Custom IAM Role Rules Validation Failed:"
+				}
+
+				errMsg = fmt.Sprintf("%s\n%s", errMsg, fmt.Sprintf("Rule #%d - Must include %s or %s but not both.", i+1, ResourcesKey, URLPathsKey))
 			}
-
-			errMsg = fmt.Sprintf("%s\n%s", errMsg, fmt.Sprintf("Rule #%d - Must include %s or %s but not both.", i+1, ResourcesKey, URLPathsKey))
 		}
-	}
 
-	if errMsg != "" {
-		err = errors.New(errMsg)
+		if errMsg != "" {
+			err = errors.New(errMsg)
+		}
 	}
 
 	return err
