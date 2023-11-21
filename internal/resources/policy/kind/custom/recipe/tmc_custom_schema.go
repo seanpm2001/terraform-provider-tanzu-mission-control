@@ -65,7 +65,7 @@ func FlattenTMCCustom(recipeName string, customRecipe *policyrecipecustommodel.V
 		customInputMap[ParametersKey] = helper.ConvertToString(parametersJSONBytes, "")
 	}
 
-	var targetKubernetesResources []interface{}
+	targetKubernetesResources := make([]interface{}, 0)
 
 	for _, tkr := range customRecipe.TargetKubernetesResources {
 		targetKubernetesResources = append(targetKubernetesResources, common.FlattenTargetKubernetesResources(tkr))

@@ -7,6 +7,7 @@ package policyrecipecustommodel
 
 import (
 	"github.com/go-openapi/swag"
+
 	policyrecipecustomcommonmodel "github.com/vmware/terraform-provider-tanzu-mission-control/internal/models/policy/recipe/custom/common"
 )
 
