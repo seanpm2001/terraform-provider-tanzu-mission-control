@@ -11,16 +11,27 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
+	"github.com/pkg/errors"
+	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/authctx"
 	policyrecipecustommodel "github.com/vmware/terraform-provider-tanzu-mission-control/internal/models/policy/recipe/custom"
 	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/policy"
 	reciperesource "github.com/vmware/terraform-provider-tanzu-mission-control/internal/resources/policy/kind/custom/recipe"
 )
 
 var (
+	RecipesAllowed = [...]string{
+		reciperesource.TMCBlockNodeportServiceKey,
+		reciperesource.TMCBlockResourcesKey,
+		reciperesource.TMCBlockRolebindingSubjectsKey,
+		reciperesource.TMCExternalIPSKey,
+		reciperesource.TMCHTTPSIngressKey,
+		reciperesource.TMCRequireLabelsKey,
+		reciperesource.TMCCustomKey,
+	}
+
 	inputSchema = &schema.Schema{
 		Type:        schema.TypeList,
-		Description: "Input for the custom policy, having one of the valid recipes: tmc_block_nodeport_service, tmc_block_resources, tmc_block_rolebinding_subjects, tmc_external_ips, tmc_https_ingress or tmc_require_labels.",
+		Description: fmt.Sprintf("Input for the custom policy, having one of the valid recipes: %v.", RecipesAllowed),
 		Required:    true,
 		MaxItems:    1,
 		MinItems:    1,
@@ -33,10 +44,10 @@ var (
 				reciperesource.TMCExternalIPSKey:              reciperesource.TMCExternalIps,
 				reciperesource.TMCHTTPSIngressKey:             reciperesource.TMCHTTPSIngress,
 				reciperesource.TMCRequireLabelsKey:            reciperesource.TMCRequireLabels,
+				reciperesource.TMCCustomKey:                   reciperesource.TMCCustomSchema,
 			},
 		},
 	}
-	RecipesAllowed = [...]string{reciperesource.TMCBlockNodeportServiceKey, reciperesource.TMCBlockResourcesKey, reciperesource.TMCBlockRolebindingSubjectsKey, reciperesource.TMCExternalIPSKey, reciperesource.TMCHTTPSIngressKey, reciperesource.TMCRequireLabelsKey}
 )
 
 type (
@@ -50,6 +61,10 @@ type (
 		inputTMCExternalIps              *policyrecipecustommodel.VmwareTanzuManageV1alpha1CommonPolicySpecCustomV1TMCExternalIPS
 		inputTMCHTTPSIngress             *policyrecipecustommodel.VmwareTanzuManageV1alpha1CommonPolicySpecCustomV1TMCCommonRecipe
 		inputTMCRequireLabels            *policyrecipecustommodel.VmwareTanzuManageV1alpha1CommonPolicySpecCustomV1TMCRequireLabels
+		inputTMCCustom                   *policyrecipecustommodel.VmwareTanzuManageV1alpha1CommonPolicySpecCustom
+
+		// recipeTMCCustom is needed when using a custom policy template
+		recipeTMCCustom string
 	}
 )
 
@@ -114,6 +129,18 @@ func constructInput(data []interface{}) (inputRecipeData *inputRecipe) {
 		}
 	}
 
+	if input, ok := inputData[reciperesource.TMCCustomKey]; ok {
+		if recipeData, ok := input.([]interface{}); ok && len(recipeData) != 0 {
+			recipeName := recipeData[0].(map[string]interface{})[reciperesource.TemplateNameKey].(string)
+
+			inputRecipeData = &inputRecipe{
+				recipe:          TMCCustomRecipe,
+				recipeTMCCustom: recipeName,
+				inputTMCCustom:  reciperesource.ConstructTMCCustom(recipeData),
+			}
+		}
+	}
+
 	return inputRecipeData
 }
 
@@ -137,6 +164,8 @@ func flattenInput(inputRecipeData *inputRecipe) (data []interface{}) {
 		flattenInputData[reciperesource.TMCHTTPSIngressKey] = reciperesource.FlattenTMCCommonRecipe(inputRecipeData.inputTMCHTTPSIngress)
 	case TMCRequireLabelsRecipe:
 		flattenInputData[reciperesource.TMCRequireLabelsKey] = reciperesource.FlattenTMCRequireLabels(inputRecipeData.inputTMCRequireLabels)
+	case TMCCustomRecipe:
+		flattenInputData[reciperesource.TMCCustomKey] = reciperesource.FlattenTMCCustom(inputRecipeData.recipeTMCCustom, inputRecipeData.inputTMCCustom)
 
 	case UnknownRecipe:
 		fmt.Printf("[ERROR]: No valid input recipe block found: minimum one valid input recipe block is required among: %v. Please check the schema.", strings.Join(RecipesAllowed[:], `, `))
@@ -209,6 +238,19 @@ func ValidateInput(ctx context.Context, diff *schema.ResourceDiff, i interface{}
 	if recipeData, ok := inputData[reciperesource.TMCRequireLabelsKey]; ok {
 		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
 			recipesFound = append(recipesFound, reciperesource.TMCRequireLabelsKey)
+		}
+	}
+
+	if recipeData, ok := inputData[reciperesource.TMCCustomKey]; ok {
+		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
+			config := i.(authctx.TanzuContext)
+			err := reciperesource.ValidateCustomRecipe(config, recipeType[0].(map[string]interface{}))
+
+			if err != nil {
+				return errors.Wrapf(err, "Custom Recipe validation failed:\n")
+			}
+
+			recipesFound = append(recipesFound, reciperesource.TMCCustomKey)
 		}
 	}
 
