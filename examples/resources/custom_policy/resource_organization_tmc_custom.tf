@@ -16,8 +16,8 @@ resource "tanzu-mission-control_custom_policy" "custom" {
         parameters = jsonencode({
           ranges = [
             {
-              min_replicas = 3
-              max_replicas = 7
+              minReplicas = 3
+              maxReplicas = 7
             }
           ]
         })
@@ -28,8 +28,16 @@ resource "tanzu-mission-control_custom_policy" "custom" {
             "apps",
           ]
           kinds = [
-            "StatefulSet",
             "Deployment"
+          ]
+        }
+
+        target_kubernetes_resources {
+          api_groups = [
+            "apps",
+          ]
+          kinds = [
+            "StatefulSet",
           ]
         }
       }
