@@ -18,9 +18,10 @@ const (
 	StatusKey                = "status"
 
 	// Inspection Object Status Keys.
-	PhaseKey     = "phase"
-	PhaseInfoKey = "phase_info"
-	ReportKey    = "report"
+	PhaseKey           = "phase"
+	PhaseInfoKey       = "phase_info"
+	ReportKey          = "report"
+	TarballDownloadURL = "tarball_download_url"
 )
 
 var clusterNameSchema = &schema.Schema{

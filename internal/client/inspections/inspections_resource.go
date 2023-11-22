@@ -21,9 +21,10 @@ const (
 	inspectionsPath                = "inspection/scans"
 
 	// Query Params.
-	managementClusterNameParam = "searchScope.managementClusterName"
-	provisionerNameParam       = "searchScope.provisionerName"
-	inspectionNameParam        = "searchScope.name"
+	managementClusterNameListInspectionsParam = "searchScope.managementClusterName"
+	provisionerNameListInspectionsParam       = "searchScope.provisionerName"
+	managementClusterNameGetInspectionParam   = "fullName.managementClusterName"
+	provisionerNameGetInspectionParam         = "fullName.provisionerName"
 )
 
 // New creates a new inspections resource service API client.
@@ -41,6 +42,8 @@ type Client struct {
 // ClientService is the interface for Client methods.
 type ClientService interface {
 	InspectionsResourceServiceList(fn *inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanFullName) (*inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanListData, error)
+
+	InspectionsResourceServiceGet(fn *inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanFullName) (*inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanData, error)
 }
 
 /*
@@ -56,12 +59,31 @@ func (c *Client) InspectionsResourceServiceList(fn *inspectionsmodel.VmwareTanzu
 	requestURL := helper.ConstructRequestURL(clustersAPIVersionAndGroupPath, fn.ClusterName, inspectionsPath)
 	queryParams := url.Values{}
 
-	queryParams.Add(managementClusterNameParam, fn.ManagementClusterName)
-	queryParams.Add(provisionerNameParam, fn.ProvisionerName)
+	queryParams.Add(managementClusterNameListInspectionsParam, fn.ManagementClusterName)
+	queryParams.Add(provisionerNameListInspectionsParam, fn.ProvisionerName)
 
-	if fn.Name != "" {
-		queryParams.Add(inspectionNameParam, fn.ProvisionerName)
+	requestURL = requestURL.AppendQueryParams(queryParams)
+
+	err := c.Get(requestURL.String(), resp)
+
+	return resp, err
+}
+
+/*
+InspectionsResourceServiceGet returns an inspection.
+*/
+func (c *Client) InspectionsResourceServiceGet(fn *inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanFullName) (*inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanData, error) {
+	resp := &inspectionsmodel.VmwareTanzuManageV1alpha1ClusterInspectionScanData{}
+
+	if fn.ManagementClusterName == "" || fn.ProvisionerName == "" || fn.ClusterName == "" || fn.Name == "" {
+		return nil, errors.New("Management Cluster Name, Provisioner Name, Cluster Name and Inspection Name must be provided.")
 	}
+
+	requestURL := helper.ConstructRequestURL(clustersAPIVersionAndGroupPath, fn.ClusterName, inspectionsPath, fn.Name)
+	queryParams := url.Values{}
+
+	queryParams.Add(managementClusterNameGetInspectionParam, fn.ManagementClusterName)
+	queryParams.Add(provisionerNameGetInspectionParam, fn.ProvisionerName)
 
 	requestURL = requestURL.AppendQueryParams(queryParams)
 

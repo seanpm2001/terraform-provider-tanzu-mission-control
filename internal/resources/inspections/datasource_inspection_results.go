@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/pkg/errors"
+	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/authctx"
 )
 
 func DataSourceInspectionResults() *schema.Resource {
@@ -22,21 +23,29 @@ func DataSourceInspectionResults() *schema.Resource {
 }
 
 func dataSourceInspectionResultsRead(ctx context.Context, data *schema.ResourceData, m interface{}) (diags diag.Diagnostics) {
-	resp, err := listInspections(data, m)
+	config := m.(authctx.TanzuContext)
+	model, err := tfInspectionModelConverter.ConvertTFSchemaToAPIModel(data, []string{NameKey, ClusterNameKey, ManagementClusterNameKey, ProvisionerNameKey})
+	inspectionFullName := model.FullName
+
+	if err != nil {
+		return diag.FromErr(errors.Wrap(err, "Converting schema failed."))
+	}
+
+	resp, err := config.TMCConnection.InspectionsResourceService.InspectionsResourceServiceGet(inspectionFullName)
 
 	switch {
 	case err != nil:
 		return diag.FromErr(errors.Wrapf(err, "Couldn't read inspection results."))
-	case resp.Scans == nil:
+	case resp.Scan == nil:
 		data.SetId("NO_DATA")
 	default:
-		err = tfInspectionModelConverter.FillTFSchema(resp.Scans[0], data)
+		err = tfInspectionModelConverter.FillTFSchema(resp.Scan, data)
 
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		inspectionFullName := resp.Scans[0].FullName
+		inspectionFullName := resp.Scan.FullName
 
 		var idKeys = []string{
 			inspectionFullName.ManagementClusterName,

@@ -25,6 +25,7 @@ var tfInspectionModelMap = &tfModelConverterHelper.BlockToStruct{
 			Field:    tfModelConverterHelper.BuildDefaultModelPath("status", "report"),
 			EvalFunc: evaluateReport,
 		},
+		TarballDownloadURL: tfModelConverterHelper.BuildDefaultModelPath("status", "tarballDownloadUrl"),
 	},
 }
 
@@ -56,7 +57,7 @@ func constructTFListModelDataMap() {
 	tfListModelSchema := tfInspectionModelConverter.UnpackSchema(tfModelConverterHelper.BuildArrayField("scans"))
 
 	statusKey := (*tfListModelSchema)[StatusKey]
-	(*tfListModelSchema)[StatusKey] = statusKey.(*tfModelConverterHelper.Map).Copy([]string{ReportKey})
+	(*tfListModelSchema)[StatusKey] = statusKey.(*tfModelConverterHelper.Map).Copy([]string{TarballDownloadURL})
 
 	*(*tfInspectionListModelMap)[InspectionListKey].(*tfModelConverterHelper.BlockSliceToStructSlice) = append(
 		*(*tfInspectionListModelMap)[InspectionListKey].(*tfModelConverterHelper.BlockSliceToStructSlice),

@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/pkg/errors"
+	"github.com/vmware/terraform-provider-tanzu-mission-control/internal/authctx"
 )
 
 func DataSourceInspections() *schema.Resource {
@@ -25,7 +26,15 @@ func DataSourceInspections() *schema.Resource {
 }
 
 func dataSourceInspectionsRead(ctx context.Context, data *schema.ResourceData, m interface{}) (diags diag.Diagnostics) {
-	resp, err := listInspections(data, m)
+	config := m.(authctx.TanzuContext)
+	model, err := tfInspectionModelConverter.ConvertTFSchemaToAPIModel(data, []string{ClusterNameKey, ManagementClusterNameKey, ProvisionerNameKey})
+	inspectionFullName := model.FullName
+
+	if err != nil {
+		return diag.FromErr(errors.Wrap(err, "Converting schema failed."))
+	}
+
+	resp, err := config.TMCConnection.InspectionsResourceService.InspectionsResourceServiceList(inspectionFullName)
 
 	switch {
 	case err != nil:
