@@ -203,55 +203,27 @@ func ValidateInput(ctx context.Context, diff *schema.ResourceDiff, i interface{}
 		return fmt.Errorf("input data: %v is not valid: minimum one valid input block is required", inputType)
 	}
 
-	inputData, _ := inputType[0].(map[string]interface{})
 	recipesFound := make([]string, 0)
 
-	if recipeData, ok := inputData[reciperesource.TMCBlockNodeportServiceKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			recipesFound = append(recipesFound, reciperesource.TMCBlockNodeportServiceKey)
-		}
-	}
+	inputData, _ := inputType[0].(map[string]interface{})
+	recipes := []string{reciperesource.TMCBlockNodeportServiceKey, reciperesource.TMCBlockResourcesKey,
+		reciperesource.TMCBlockRolebindingSubjectsKey, reciperesource.TMCExternalIPSKey,
+		reciperesource.TMCHTTPSIngressKey, reciperesource.TMCRequireLabelsKey, reciperesource.TMCCustomKey}
 
-	if recipeData, ok := inputData[reciperesource.TMCBlockResourcesKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			recipesFound = append(recipesFound, reciperesource.TMCBlockResourcesKey)
-		}
-	}
+	for _, recipe := range recipes {
+		if recipeData, ok := inputData[recipe]; ok {
+			if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
+				if recipe == reciperesource.TMCCustomKey {
+					config := i.(authctx.TanzuContext)
+					err := reciperesource.ValidateCustomRecipe(config, recipeType[0].(map[string]interface{}))
 
-	if recipeData, ok := inputData[reciperesource.TMCBlockRolebindingSubjectsKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			recipesFound = append(recipesFound, reciperesource.TMCBlockRolebindingSubjectsKey)
-		}
-	}
+					if err != nil {
+						return errors.Wrapf(err, "Custom Recipe validation failed:\n")
+					}
+				}
 
-	if recipeData, ok := inputData[reciperesource.TMCExternalIPSKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			recipesFound = append(recipesFound, reciperesource.TMCExternalIPSKey)
-		}
-	}
-
-	if recipeData, ok := inputData[reciperesource.TMCHTTPSIngressKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			recipesFound = append(recipesFound, reciperesource.TMCHTTPSIngressKey)
-		}
-	}
-
-	if recipeData, ok := inputData[reciperesource.TMCRequireLabelsKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			recipesFound = append(recipesFound, reciperesource.TMCRequireLabelsKey)
-		}
-	}
-
-	if recipeData, ok := inputData[reciperesource.TMCCustomKey]; ok {
-		if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
-			config := i.(authctx.TanzuContext)
-			err := reciperesource.ValidateCustomRecipe(config, recipeType[0].(map[string]interface{}))
-
-			if err != nil {
-				return errors.Wrapf(err, "Custom Recipe validation failed:\n")
+				recipesFound = append(recipesFound, recipe)
 			}
-
-			recipesFound = append(recipesFound, reciperesource.TMCCustomKey)
 		}
 	}
 
