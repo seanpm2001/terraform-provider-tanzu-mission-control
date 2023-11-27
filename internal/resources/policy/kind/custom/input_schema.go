@@ -206,11 +206,8 @@ func ValidateInput(ctx context.Context, diff *schema.ResourceDiff, i interface{}
 	recipesFound := make([]string, 0)
 
 	inputData, _ := inputType[0].(map[string]interface{})
-	recipes := []string{reciperesource.TMCBlockNodeportServiceKey, reciperesource.TMCBlockResourcesKey,
-		reciperesource.TMCBlockRolebindingSubjectsKey, reciperesource.TMCExternalIPSKey,
-		reciperesource.TMCHTTPSIngressKey, reciperesource.TMCRequireLabelsKey, reciperesource.TMCCustomKey}
 
-	for _, recipe := range recipes {
+	for _, recipe := range RecipesAllowed {
 		if recipeData, ok := inputData[recipe]; ok {
 			if recipeType, ok := recipeData.([]interface{}); ok && len(recipeType) != 0 {
 				if recipe == reciperesource.TMCCustomKey {
