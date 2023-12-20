@@ -86,7 +86,7 @@ func Provider() *schema.Provider {
 			targetlocation.ResourceName:      targetlocation.ResourceTargetLocation(),
 			managementcluster.ResourceName:   managementcluster.ResourceManagementClusterRegistration(),
 			utkgresource.ResourceName:        utkgresource.ResourceTanzuKubernetesCluster(),
-			provisioner.ResourceName:         provisioner.ResourceProvisioner(),
+			provisioner.resourceName:         provisioner.ResourceProvisioner(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			cluster.ResourceName:             cluster.DataSourceTMCCluster(),
@@ -112,7 +112,7 @@ func Provider() *schema.Provider {
 			targetlocation.ResourceName:      targetlocation.DataSourceTargetLocations(),
 			managementcluster.ResourceName:   managementcluster.DataSourceManagementClusterRegistration(),
 			clusterclass.ResourceName:        clusterclass.DataSourceClusterClass(),
-			provisioner.ResourceName:         provisioner.DataSourceProvisioner(),
+			provisioner.resourceName:         provisioner.DataSourceProvisioner(),
 		},
 		ConfigureContextFunc: authctx.ProviderConfigureContext,
 	}

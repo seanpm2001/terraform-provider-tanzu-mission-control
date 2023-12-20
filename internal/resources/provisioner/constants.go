@@ -6,9 +6,10 @@ SPDX-License-Identifier: MPL-2.0
 package provisioner
 
 const (
-	ResourceName = "tanzu-mission-control_provisioner"
+	resourceName = "tanzu-mission-control_provisioner"
+	resourceVar  = "provisioner_resource"
 
-	NameKey                  = "name"
-	OrgIDKey                 = "org_id"
-	ManagementClusterNameKey = "management_cluster"
+	nameKey                  = "name"
+	orgIDKey                 = "org_id"
+	managementClusterNameKey = "management_cluster"
 )

@@ -28,18 +28,18 @@ func DataSourceProvisioner() *schema.Resource {
 }
 
 var provisionerListSchema = map[string]*schema.Schema{
-	NameKey: {
+	nameKey: {
 		Type:        schema.TypeString,
 		Description: "Name of the provisioner",
 		Optional:    true,
 	},
-	ManagementClusterNameKey: {
+	managementClusterNameKey: {
 		Type:        schema.TypeString,
 		Description: "Name of the management cluster",
 		Required:    true,
 		ForceNew:    true,
 	},
-	OrgIDKey: {
+	orgIDKey: {
 		Type:        schema.TypeString,
 		Description: "ID of the organization",
 		Optional:    true,
@@ -50,12 +50,12 @@ var provisionerListSchema = map[string]*schema.Schema{
 func dataSourceProvisionerListRead(ctx context.Context, d *schema.ResourceData, m interface{}) (diags diag.Diagnostics) {
 	config := m.(authctx.TanzuContext)
 
-	managementClusterName, ok := d.Get(ManagementClusterNameKey).(string)
+	managementClusterName, ok := d.Get(managementClusterNameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read management cluster name")
 	}
 
-	provisionerName, _ := d.Get(NameKey).(string)
+	provisionerName, _ := d.Get(nameKey).(string)
 	if provisionerName != "" {
 		return dataSourceProvisionerRead(ctx, d, m)
 	}

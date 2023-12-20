@@ -36,19 +36,19 @@ func ResourceProvisioner() *schema.Resource {
 }
 
 var provisionerSchema = map[string]*schema.Schema{
-	NameKey: {
+	nameKey: {
 		Type:        schema.TypeString,
 		Description: "Name of the provisioner",
 		Required:    true,
 		ForceNew:    true,
 	},
-	ManagementClusterNameKey: {
+	managementClusterNameKey: {
 		Type:        schema.TypeString,
 		Description: "Name of the management cluster. Edit operation such as create, update and delete is not supported for TKGm & TKGs management cluster provisioners.",
 		Required:    true,
 		ForceNew:    true,
 	},
-	OrgIDKey: {
+	orgIDKey: {
 		Type:        schema.TypeString,
 		Description: "ID of the organization",
 		Optional:    true,
@@ -64,12 +64,12 @@ func resourceProvisionerCreate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.Errorf("error while retrieving Tanzu auth config")
 	}
 
-	provisionerName, ok := d.Get(NameKey).(string)
+	provisionerName, ok := d.Get(nameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read provisioner name")
 	}
 
-	managementClusterName, ok := d.Get(ManagementClusterNameKey).(string)
+	managementClusterName, ok := d.Get(managementClusterNameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read management cluster name")
 	}
@@ -104,12 +104,12 @@ func resourceProvisionerInPlaceUpdate(ctx context.Context, d *schema.ResourceDat
 		return diags
 	}
 
-	provisionerName, ok := d.Get(NameKey).(string)
+	provisionerName, ok := d.Get(nameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read provisioner name")
 	}
 
-	managementClusterName, ok := d.Get(ManagementClusterNameKey).(string)
+	managementClusterName, ok := d.Get(managementClusterNameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read management cluster name")
 	}
@@ -146,12 +146,12 @@ func resourceProvisionerInPlaceUpdate(ctx context.Context, d *schema.ResourceDat
 func dataSourceProvisionerRead(ctx context.Context, d *schema.ResourceData, m interface{}) (diags diag.Diagnostics) {
 	config := m.(authctx.TanzuContext)
 
-	provisionerName, ok := d.Get(NameKey).(string)
+	provisionerName, ok := d.Get(nameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read provisioner name")
 	}
 
-	managementClusterName, ok := d.Get(ManagementClusterNameKey).(string)
+	managementClusterName, ok := d.Get(managementClusterNameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read management cluster name")
 	}
@@ -181,12 +181,12 @@ func dataSourceProvisionerRead(ctx context.Context, d *schema.ResourceData, m in
 func resourceProvisionerDelete(ctx context.Context, d *schema.ResourceData, m interface{}) (diags diag.Diagnostics) {
 	config := m.(authctx.TanzuContext)
 
-	provisionerName, ok := d.Get(NameKey).(string)
+	provisionerName, ok := d.Get(nameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read provisioner name")
 	}
 
-	managementClusterName, ok := d.Get(ManagementClusterNameKey).(string)
+	managementClusterName, ok := d.Get(managementClusterNameKey).(string)
 	if !ok {
 		return diag.Errorf("unable to read management cluster name")
 	}
